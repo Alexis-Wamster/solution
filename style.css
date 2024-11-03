@@ -1,0 +1,16 @@
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: white;
+    color: black;
+}
+
+/* Style pour le texte du compte à rebours */
+#countdown {
+    font-size: 5em;
+    font-weight: bold;
+}
