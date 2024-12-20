@@ -3,35 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <title>Minuteur</title>
 </head>
 
 <body>
-    <div id="countdown">Calcul en cours...</div>
+    <div id="middleContainer">
+        <div id="enigm" style="display: none;">Enigm time</div>
+        <div id="mainCounter">Calcul en cours...</div>
+        <div id="secondaryCounter" style="display: none;">Calcul en cours...</div>
+    </div>
 
-    <script>
-        // Date cible : 28 avril 2025 à 8h00 (UTC)
-        const targetDate = new Date("2025-04-28T08:00:00Z");
-
-        function updateCountdown() {
-            const now = new Date();
-            const timeRemaining = Math.floor((targetDate - now) / 1000); // en secondes
-
-            // Afficher le temps restant ou un message si la date est atteinte
-            const countdownElement = document.getElementById("countdown");
-            if (timeRemaining > 0) {
-                countdownElement.textContent = timeRemaining;
-            } else {
-                countdownElement.textContent = "Regardez les infos !!!";
-                clearInterval(interval); // Arrêter le minuteur
-            }
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: black;
         }
 
-        // Mise à jour chaque seconde
-        const interval = setInterval(updateCountdown, 1000);
-        updateCountdown(); // Appel initial
-    </script>
+        #middleContainer{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #enigm{
+            width: 50%;
+        }
+
+        /* Style pour le texte du compte à rebours */
+        #mainCounter {
+            font-size: 5em;
+            font-weight: bold;
+        }
+
+        #secondaryCounter {
+            font-size: 3em;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+
+<script>
+    // Date cible : 25 novembre 2024 à 20h00 (UTC)
+    const targetMainDate = new Date("2024-12-25T20:00:00Z");
+    const targetSecondaryDate = new Date("2025-01-01T00:00:00Z");
+
+    const mainCounter = document.getElementById("mainCounter");
+    const secondaryCounter = document.getElementById("secondaryCounter");
+    const enigm = document.getElementById("enigm");
+
+    function updateCountdown() {
+        const now = new Date();
+        const mainTimeRemaining = Math.floor((targetMainDate - now) / 1000); // en secondes
+        const secondaryTimeRemaining = Math.floor((targetSecondaryDate - now) / 1000); // en secondes
+
+        if (mainTimeRemaining > 0) {
+            mainCounter.textContent = mainTimeRemaining;
+        } else {
+            mainCounter.style.display = "none"; 
+            console.log(mainCounter.style.display);  // Cela devrait maintenant afficher "none"
+            secondaryCounter.style.display = "block";  // Afficher le compteur secondaire
+            enigm.style.display = "block";  // Afficher l'énigme
+            secondaryCounter.textContent = secondaryTimeRemaining;
+        }
+    }
+
+    // Mise à jour chaque seconde
+    const interval = setInterval(updateCountdown, 1000);
+    updateCountdown(); // Appel initial
+</script>
 </body>
 
 </html>
