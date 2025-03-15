@@ -54,6 +54,7 @@
 </head>
 <body>
     <div id="message">Cette page est protégée par un mot de passe.</div>
+    <div id="mainCounter"></div>
     <div id="input-box"></div>
     <script>
         let sequence = [];
@@ -62,6 +63,9 @@
         const threshold = 150;
         const restraint = 100;
         const inputBox = document.getElementById("input-box");
+
+        const targetMainDate = new Date("2025-06-01T20:00:00Z");
+        const mainCounter = document.getElementById("mainCounter");
 
         function input(arrowSymbol){
             sequence.push(arrowSymbol);
@@ -138,6 +142,21 @@
                 inputBox.innerHTML = "";
             }
         });
+
+
+        
+
+        function updateCountdown() {
+            const now = new Date();
+            const mainTimeRemaining = Math.floor((targetMainDate - now) / 1000); // en secondes
+        if (mainTimeRemaining > 0) {
+            mainCounter.textContent = "Clef : " + mainTimeRemaining;
+        } else {
+            mainCounter.style.display = "none"; 
+        }
+    }
+    const interval = setInterval(updateCountdown, 1000);
+    updateCountdown();
     </script>
 </body>
 </html>
