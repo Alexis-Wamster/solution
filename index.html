@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ombre du Passé</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;
+        }
+        #message {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        #input-box {
+            max-width: 80%;
+            min-width: 300px;
+            min-height: 100px;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+        .arrow {
+            margin: 0 5px;
+        }
+        .error, .success {
+            animation: flash 0.5s;
+        }
+        @keyframes flash {
+            0% { background: red; }
+            100% { background: transparent; }
+        }
+        .success {
+            animation: flash-green 0.5s;
+        }
+        @keyframes flash-green {
+            0% { background: green; }
+            100% { background: transparent; }
+        }
+    </style>
+</head>
+<body>
+    <div id="message">Cette page est protégée par un mot de passe.</div>
+    <div id="input-box"></div>
+    <script>
+        let sequence = [];
+        const correctSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+        var startX, startY, distX, distY;
+        const threshold = 150;
+        const restraint = 100;
+        const inputBox = document.getElementById("input-box");
+
+        function input(arrowSymbol){
+            sequence.push(arrowSymbol);
+            let span = document.createElement("span");
+            span.classList.add("arrow");
+            span.textContent = arrowSymbol;
+            inputBox.appendChild(span);
+                
+            if (sequence.length === 20) {
+                if (sequence.join('') === correctSequence.join('')) {
+                    inputBox.classList.add("success");
+                    setTimeout(() => { window.location.href = "https://example.com"; }, 1000);
+                } else {
+                    inputBox.classList.add("error");
+                    setTimeout(() => {
+                        sequence = [];
+                        inputBox.innerHTML = "";
+                        inputBox.classList.remove("error");
+                    }, 100);
+                }
+            }
+        }
+        
+        document.addEventListener('touchstart', function(event) {
+            var touch = event.changedTouches[0];
+            startX = touch.pageX;
+            startY = touch.pageY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            event. preventDefault();
+            var touch = event.changedTouches[0];
+            distX = touch.pageX - startX;
+            distY = touch.pageY - startY;
+            if (distX > threshold && distX > Math.abs(distY)+restraint){
+                input("→");
+            }
+            if (-distX > threshold && -distX > Math.abs(distY)+restraint){
+                input("←");
+            }
+            if (distY > threshold && distY > Math.abs(distX)+restraint){
+                input("↓");
+            }
+            if (-distY > threshold && -distY > Math.abs(distX)+restraint){
+                input("↑");
+            }
+        }, { passive: false });
+        
+        document.addEventListener("keydown", function(event) {
+            if (event.key.includes("Arrow")) {
+                switch (event.key) {
+                    case "ArrowUp":
+                        input("↑");
+                        break;
+                    case "ArrowDown":
+                        input("↓");
+                        break;
+                    case "ArrowLeft":
+                        input("←");
+                        break;
+                    case "ArrowRight":
+                        input("→");
+                        break;
+                    default:
+                        break;
+                }
+            } else if (event.key === "Backspace") {
+                sequence.pop();
+                if (inputBox.lastChild) {
+                    inputBox.removeChild(inputBox.lastChild);
+                }
+            } else if (event.key === "Delete" || event.key === "Escape") {
+                sequence = [];
+                inputBox.innerHTML = "";
+            }
+        });
+    </script>
+</body>
+</html>
