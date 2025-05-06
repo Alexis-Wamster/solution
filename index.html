@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ombre du Passé</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
     <style>
         body {
             background: #0a0a0a;
@@ -56,15 +58,16 @@
     <div id="message">Cette page est protégée par un mot de passe.</div>
     <div id="mainCounter"></div>
     <div id="input-box"></div>
+
     <script>
         let sequence = [];
-        const correctSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+        const correctSequence = ['↓', '←', '↓', '→', '↑', '→', '↑', '→', '↓', '→', '↓', '←', '↓', '→', '↓', '→', '↑', '→', '↓'];
         var startX, startY, distX, distY;
         const threshold = 150;
         const restraint = 100;
         const inputBox = document.getElementById("input-box");
 
-        const targetMainDate = new Date("2025-06-01T20:00:00Z");
+        const targetMainDate = new Date(new Date(2025, 5, 1, 14, 0, 0));
         const mainCounter = document.getElementById("mainCounter");
 
         function input(arrowSymbol){
@@ -74,10 +77,10 @@
             span.textContent = arrowSymbol;
             inputBox.appendChild(span);
                 
-            if (sequence.length === 20) {
+            if (sequence.length >= 19) {
                 if (sequence.join('') === correctSequence.join('')) {
                     inputBox.classList.add("success");
-                    setTimeout(() => { window.location.href = "https://example.com"; }, 1000);
+                    setTimeout(() => { audio("dieux.mp3") }, 1000);
                 } else {
                     inputBox.classList.add("error");
                     setTimeout(() => {
@@ -149,14 +152,99 @@
         function updateCountdown() {
             const now = new Date();
             const mainTimeRemaining = Math.floor((targetMainDate - now) / 1000); // en secondes
-        if (mainTimeRemaining > 0) {
-            mainCounter.textContent = "Clef : " + mainTimeRemaining;
-        } else {
-            mainCounter.style.display = "none"; 
+            if (mainTimeRemaining > 0) {
+                mainCounter.textContent = "Clef : " + mainTimeRemaining;
+            } else {
+                mainCounter.style.display = "none"; 
+            }
         }
-    }
-    const interval = setInterval(updateCountdown, 1000);
-    updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+
+        //////////////// AUDIO //////////////
+
+        let sound;
+        let fft;
+        let isPlaying = false;
+        let cnv;
+
+        function audio(chemin_audio) {
+        sound = loadSound(chemin_audio, () => {
+            // Cacher les autres éléments
+            document.getElementById('message').style.display = 'none';
+            document.getElementById('mainCounter').style.display = 'none';
+            document.getElementById('input-box').style.display = 'none';
+
+            if (!cnv) {
+            cnv = createCanvas(windowWidth, 300);
+            cnv.id('audioCanvas');
+            cnv.parent(document.body); // Attache directement au body pour mieux le positionner
+            cnv.style('display', 'block');
+            cnv.style('position', 'absolute');
+            cnv.style('top', '50%');
+            cnv.style('left', '50%');
+            cnv.style('transform', 'translate(-50%, -50%)');
+            cnv.style('z-index', '9999');
+            cnv.style('visibility', 'visible');
+            }
+
+            fft = new p5.FFT();
+            sound.play();
+            isPlaying = true;
+
+            sound.onended(() => {
+            isPlaying = false;
+
+            // Supprime le canvas
+            if (cnv) {
+                cnv.remove();
+                cnv = null;
+            }
+
+            // Réaffiche les autres éléments
+            document.getElementById('message').style.display = '';
+            document.getElementById('mainCounter').style.display = '';
+            document.getElementById('input-box').style.display = '';
+            });
+        });
+        }
+
+        function setup() {
+        noCanvas(); // Empêche le canvas d'apparaître au chargement
+        }
+
+        function draw() {
+  if (!isPlaying || !sound) return;
+
+  background('#0a0a0a');
+  let spectrum = fft.analyze();
+
+  noStroke();
+  fill(0, 150, 255, 180);
+
+  let half = spectrum.length / 2;
+  let centerY = height / 2;
+
+  for (let i = 0; i < half; i++) {
+    let h = map(spectrum[i], 0, 255, 0, centerY); // Limiter à moitié de la hauteur
+    let w = width / (half * 2);
+    let xRight = width / 2 + i * w;
+    let xLeft = width / 2 - (i + 1) * w;
+
+    // Bande du haut : part du milieu et monte
+    rect(xLeft, centerY - h, w, h); // gauche
+    rect(xRight, centerY - h, w, h); // droite
+
+    // Bande du bas : part du milieu et descend
+    rect(xLeft, centerY, w, h); // gauche
+    rect(xRight, centerY, w, h); // droite
+  }
+}
+
+        function windowResized() {
+        if (cnv) resizeCanvas(windowWidth, 300);
+        }
     </script>
 </body>
 </html>
