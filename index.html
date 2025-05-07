@@ -80,7 +80,10 @@
             if (sequence.length >= 19) {
                 if (sequence.join('') === correctSequence.join('')) {
                     inputBox.classList.add("success");
-                    setTimeout(() => { audio("dieux.mp3") }, 1000);
+                    setTimeout(() => {
+                        inputBox.innerHTML = "";
+                        audio("dieux.mp3");
+                    }, 1000);
                 } else {
                     inputBox.classList.add("error");
                     setTimeout(() => {
@@ -115,6 +118,10 @@
             if (-distY > threshold && -distY > Math.abs(distX)+restraint){
                 input("↑");
             }
+        }, { passive: false });
+
+        window.addEventListener('touchmove', function (e) {
+            e.preventDefault();
         }, { passive: false });
         
         document.addEventListener("keydown", function(event) {
